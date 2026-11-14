@@ -38,8 +38,18 @@ button { font: inherit; cursor: pointer; border: 0; }
 .login-card .primary { height: 38px; margin-top: .3rem; }
 
 #shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+#sidebar, #content { min-width: 0; }
 #sidebar { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: .6rem; padding: 1.1rem .8rem; background: #0f172a; color: #cbd5e1; }
 #sidebar .brand { color: #fff; padding: 0 .4rem 1rem; }
+#sidebar .icon-btn { margin-left: auto; color: #94a3b8; }
+#sidebar .icon-btn:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+.icon-btn { display: inline-grid; place-items: center; width: 32px; height: 32px; padding: 0; border-radius: 8px; background: transparent; color: var(--text); }
+.icon-btn:hover { background: #eef0f5; }
+.title-wrap { display: flex; align-items: center; gap: .6rem; }
+#openSidebar { display: none; }
+#shell.collapsed { grid-template-columns: 1fr; }
+#shell.collapsed #sidebar { display: none; }
+#shell.collapsed #openSidebar { display: inline-grid; }
 .side-label { padding: 0 .6rem; font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: #64748b; }
 #tabs { display: flex; flex-direction: column; gap: .15rem; flex: 1; overflow-y: auto; }
 .side-item { display: flex; align-items: center; gap: .6rem; width: 100%; padding: .45rem .6rem; border-radius: 8px; background: transparent; color: #cbd5e1; text-align: left; font-size: .84rem; }

@@ -374,6 +374,14 @@ $('loginForm').onsubmit = async (e) => {
 
 $('logoutBtn').onclick = () => db.auth.signOut();
 
+function setSidebar(open) {
+  $('shell').classList.toggle('collapsed', !open);
+  localStorage.setItem('sidebarOpen', open ? '1' : '0');
+}
+setSidebar(localStorage.getItem('sidebarOpen') !== '0');
+$('closeSidebar').onclick = () => setSidebar(false);
+$('openSidebar').onclick = () => setSidebar(true);
+
 db.auth.onAuthStateChange((_event, session) => {
   showApp(!!session);
   if (session) loadData();
