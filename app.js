@@ -2,9 +2,10 @@ const STATUSES = ['Not started', 'In progress', 'Submitted', 'Interview', 'Accep
 const CLOSED = ['Submitted', 'Interview', 'Accepted', 'Rejected'];
 const PORTALS = ['Uniassist', 'Own Portal', 'Own Portal with VPD'];
 const YES_NO = ['No', 'Yes'];
-const ICON_EDIT = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
-const ICON_DELETE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
 const ALL = 'all';
+const AVATAR_COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
+const ICON_EDIT = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+const ICON_DELETE = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -14,7 +15,8 @@ let selected = ALL;
 let editingId = null;
 
 const $ = (id) => document.getElementById(id);
-const studentName = (id) => students.find((s) => s.id === id)?.name ?? '';
+const slug = (s) => s.toLowerCase().replace(/\s+/g, '-');
+const findStudent = (id) => students.find((s) => s.id === id);
 
 function el(tag, text, attrs = {}) {
   const e = document.createElement(tag);
@@ -30,6 +32,16 @@ function safeUrl(url) {
   } catch {
     return null;
   }
+}
+
+const fmtDate = (d) => new Date(`${d}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+const daysUntil = (d) => Math.round((new Date(`${d}T00:00:00`) - new Date(new Date().toDateString())) / 86400000);
+
+function avatar(student, large = false) {
+  const initials = student.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+  const a = el('span', initials, { className: large ? 'avatar lg' : 'avatar' });
+  a.style.background = AVATAR_COLORS[(student.id - 1) % AVATAR_COLORS.length];
+  return a;
 }
 
 async function run(query) {
@@ -49,52 +61,133 @@ async function loadData() {
 
 function showApp(signedIn) {
   $('loginView').hidden = signedIn;
-  $('appView').hidden = !signedIn;
-  $('tabs').hidden = !signedIn;
-  $('logoutBtn').hidden = !signedIn;
+  $('shell').hidden = !signedIn;
 }
 
 function renderTabs() {
   const tabs = $('tabs');
   tabs.replaceChildren();
-  const make = (label, value) => {
-    const b = el('button', label, { type: 'button' });
+  const make = (label, value, icon, count) => {
+    const b = el('button', undefined, { type: 'button', className: 'side-item' });
     if (selected === value) b.classList.add('active');
-    b.onclick = () => { selected = value; render(); };
+    b.append(icon, el('span', label, { className: 'name' }), el('span', String(count), { className: 'count' }));
+    b.onclick = () => {
+      selected = value;
+      $('filterStatus').value = '';
+      render();
+    };
     tabs.append(b);
   };
-  make('All students', ALL);
-  students.forEach((s) => make(s.name, s.id));
+  const allIcon = el('span', 'A', { className: 'avatar all' });
+  make('All students', ALL, allIcon, applications.length);
+  students.forEach((s) => make(s.name, s.id, avatar(s), applications.filter((a) => a.student_id === s.id).length));
 }
 
 function renderSummary(apps) {
   const box = $('summary');
-  box.replaceChildren(el('div', `Total: ${apps.length}`, { className: 'chip' }));
-  STATUSES.forEach((st) => {
-    const n = apps.filter((a) => a.status === st).length;
-    if (n) box.append(el('div', `${st}: ${n}`, { className: 'chip' }));
+  box.replaceChildren();
+  const active = $('filterStatus').value;
+
+  const card = (label, value, status) => {
+    const c = el('button', undefined, { type: 'button', className: `stat${status ? ` s-${slug(status)}` : ''}` });
+    if ((status ?? '') === active) c.classList.add('on');
+    c.append(el('span', label, { className: 'stat-label' }), el('strong', String(value), { className: 'stat-value' }));
+    c.onclick = () => {
+      $('filterStatus').value = status ?? '';
+      render();
+    };
+    box.append(c);
+  };
+
+  card('Total', apps.length, null);
+  STATUSES.forEach((st) => card(st, apps.filter((a) => a.status === st).length, st));
+
+  const upcoming = apps
+    .filter((a) => a.deadline && !CLOSED.includes(a.status) && daysUntil(a.deadline) >= 0)
+    .sort((a, b) => a.deadline.localeCompare(b.deadline))[0];
+  const next = el('div', undefined, { className: 'stat next' });
+  next.append(
+    el('span', 'Next deadline', { className: 'stat-label' }),
+    el('strong', upcoming ? fmtDate(upcoming.deadline) : 'None upcoming', { className: 'stat-value' }),
+  );
+  if (upcoming) next.append(el('span', `${upcoming.university} (${daysUntil(upcoming.deadline)} days)`, { className: 'stat-sub' }));
+  box.append(next);
+}
+
+function renderProfile() {
+  const s = findStudent(selected);
+  const box = $('profile');
+  box.replaceChildren();
+  if (!s) return;
+  box.append(avatar(s, true));
+  [['Full name', s.full_name], ['Branch', s.branch], ['Grade', s.grade], ['IELTS', s.ielts], ['GRE', s.gre]].forEach(([k, v]) => {
+    const item = el('div', undefined, { className: 'pitem' });
+    item.append(el('span', k, { className: 'plabel' }), el('span', v || '-'));
+    box.append(item);
   });
 }
 
-function renderRows(apps) {
+function textCell(value, className) {
+  const td = el('td', undefined, className ? { className } : {});
+  if (value) td.textContent = value;
+  else td.append(el('span', '-', { className: 'dash' }));
+  return td;
+}
+
+function deadlineCell(a) {
+  const td = el('td', undefined, { className: 'deadline' });
+  if (!a.deadline) {
+    td.append(el('span', '-', { className: 'dash' }));
+    return td;
+  }
+  td.append(el('div', fmtDate(a.deadline)));
+  if (!CLOSED.includes(a.status)) {
+    const d = daysUntil(a.deadline);
+    if (d < 0) td.append(el('span', 'Overdue', { className: 'due due-over' }));
+    else if (d <= 14) td.append(el('span', d === 0 ? 'Due today' : `${d} day${d === 1 ? '' : 's'} left`, { className: 'due due-soon' }));
+  }
+  return td;
+}
+
+function renderRows(apps, totalForView) {
   const body = $('rows');
   body.replaceChildren();
-  const today = new Date().toISOString().slice(0, 10);
+  $('rows').closest('table').classList.toggle('single', selected !== ALL);
 
   [...apps].sort((a, b) => (a.deadline ?? '9999').localeCompare(b.deadline ?? '9999')).forEach((a) => {
     const tr = el('tr');
-    if (a.deadline && a.deadline < today && !CLOSED.includes(a.status)) tr.classList.add('overdue');
 
-    const statusSel = el('select', undefined, { className: `status s-${a.status.toLowerCase().replace(/\s+/g, '-')}` });
+    const studentCell = el('td', undefined, { className: 'col-student' });
+    const stud = findStudent(a.student_id);
+    if (stud) {
+      const wrap = el('div', undefined, { className: 'stud' });
+      wrap.append(avatar(stud), el('span', stud.name));
+      studentCell.append(wrap);
+    }
+
+    const uniCell = el('td');
+    uniCell.append(el('div', a.university, { className: 'uni' }), el('div', a.program, { className: 'prog' }));
+
+    const greCell = el('td');
+    greCell.append(el('span', a.gre, { className: `chip ${a.gre === 'Yes' ? 'chip-yes' : 'chip-no'}` }));
+
+    const portalCell = el('td');
+    if (a.portal) portalCell.append(el('span', a.portal, { className: 'chip' }));
+    else portalCell.append(el('span', '-', { className: 'dash' }));
+
+    const statusSel = el('select', undefined, { className: `status s-${slug(a.status)}` });
     STATUSES.forEach((s) => statusSel.append(el('option', s, { value: s, selected: s === a.status })));
     statusSel.onchange = async () => {
       await run(db.from('applications').update({ status: statusSel.value }).eq('id', a.id));
       await loadData();
     };
+    const statusCell = el('td');
+    statusCell.append(statusSel);
 
     const linkCell = el('td');
     const href = a.link && safeUrl(a.link);
     if (href) linkCell.append(el('a', 'Open', { href, target: '_blank', rel: 'noopener noreferrer' }));
+    else linkCell.append(el('span', '-', { className: 'dash' }));
 
     const edit = el('button', undefined, { type: 'button', className: 'icon', title: 'Edit' });
     edit.innerHTML = ICON_EDIT;
@@ -107,83 +200,50 @@ function renderRows(apps) {
       await run(db.from('applications').delete().eq('id', a.id));
       await loadData();
     };
+    const actionCell = el('td', undefined, { className: 'row-actions' });
+    actionCell.append(edit, del);
 
-    const statusCell = el('td');
-    statusCell.append(statusSel);
-    const delCell = el('td', undefined, { className: 'row-actions' });
-    delCell.append(edit, del);
-
-    tr.append(
-      el('td', studentName(a.student_id)),
-      el('td', a.university),
-      el('td', a.program),
-      el('td', a.deadline ?? ''),
-      el('td', a.ielts ?? ''),
-      el('td', a.gre ?? ''),
-      el('td', a.portal ?? ''),
-      statusCell,
-      linkCell,
-      el('td', a.notes ?? ''),
-      delCell,
-    );
+    tr.append(studentCell, uniCell, deadlineCell(a), textCell(a.ielts), greCell, portalCell, statusCell, linkCell, textCell(a.notes), actionCell);
     body.append(tr);
   });
 
-  $('empty').hidden = apps.length > 0;
-}
-
-function renderProfile() {
-  const s = students.find((x) => x.id === selected);
-  const box = $('profile');
-  box.replaceChildren();
-  if (!s) return;
-  [['Full name', s.full_name], ['Branch', s.branch], ['Grade', s.grade], ['IELTS', s.ielts], ['GRE', s.gre]].forEach(([k, v]) => {
-    const item = el('div', undefined, { className: 'pitem' });
-    item.append(el('span', k, { className: 'plabel' }), el('span', v || '-'));
-    box.append(item);
-  });
+  const empty = $('empty');
+  empty.hidden = apps.length > 0;
+  empty.textContent = totalForView === 0 ? 'No applications yet.' : 'No applications match your filters.';
 }
 
 function render() {
-  const apps = selected === ALL ? applications : applications.filter((a) => a.student_id === selected);
+  const base = selected === ALL ? applications : applications.filter((a) => a.student_id === selected);
+  const query = $('search').value.trim().toLowerCase();
+  const status = $('filterStatus').value;
+  const filtered = base.filter((a) => (!status || a.status === status)
+    && (!query || `${a.university} ${a.program}`.toLowerCase().includes(query)));
+
   renderTabs();
-  renderSummary(apps);
-  renderRows(apps);
-  $('studentBar').hidden = selected === ALL;
+  renderSummary(base);
+  renderRows(filtered, base.length);
   renderProfile();
+
+  const s = findStudent(selected);
+  $('pageTitle').textContent = s ? (s.full_name || s.name) : 'All applications';
+  $('pageSub').textContent = s
+    ? `${base.length} application${base.length === 1 ? '' : 's'}`
+    : `${students.length} students, ${base.length} applications`;
+  $('studentBar').hidden = selected === ALL;
+  $('addBtn').hidden = selected === ALL;
 }
 
-$('editProfileBtn').onclick = () => {
-  const s = students.find((x) => x.id === selected);
-  $('pName').value = s.name;
-  $('pFullName').value = s.full_name ?? '';
-  $('pBranch').value = s.branch ?? '';
-  $('pGrade').value = s.grade ?? '';
-  $('pIelts').value = s.ielts ?? '';
-  $('pGre').value = s.gre ?? '';
-  $('profileDialog').showModal();
-};
-$('cancelProfileBtn').onclick = () => $('profileDialog').close();
-
-$('profileForm').onsubmit = async (e) => {
-  e.preventDefault();
-  const val = (id) => $(id).value.trim() || null;
-  await run(db.from('students').update({
-    name: $('pName').value.trim(),
-    full_name: val('pFullName'),
-    branch: val('pBranch'),
-    grade: val('pGrade'),
-    ielts: val('pIelts'),
-    gre: val('pGre'),
-  }).eq('id', selected));
-  $('profileDialog').close();
-  await loadData();
-};
-
-STATUSES.forEach((s) => $('status').append(el('option', s, { value: s })));
+$('filterStatus').append(el('option', 'All statuses', { value: '' }));
+STATUSES.forEach((s) => {
+  $('filterStatus').append(el('option', s, { value: s }));
+  $('status').append(el('option', s, { value: s }));
+});
 $('portal').append(el('option', '-', { value: '' }));
 PORTALS.forEach((p) => $('portal').append(el('option', p, { value: p })));
 YES_NO.forEach((v) => $('gre').append(el('option', v, { value: v })));
+
+$('search').oninput = render;
+$('filterStatus').onchange = render;
 
 function openDialog(app) {
   editingId = app?.id ?? null;
@@ -223,6 +283,33 @@ $('appForm').onsubmit = async (e) => {
   await loadData();
 };
 
+$('editProfileBtn').onclick = () => {
+  const s = findStudent(selected);
+  $('pName').value = s.name;
+  $('pFullName').value = s.full_name ?? '';
+  $('pBranch').value = s.branch ?? '';
+  $('pGrade').value = s.grade ?? '';
+  $('pIelts').value = s.ielts ?? '';
+  $('pGre').value = s.gre ?? '';
+  $('profileDialog').showModal();
+};
+$('cancelProfileBtn').onclick = () => $('profileDialog').close();
+
+$('profileForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const val = (id) => $(id).value.trim() || null;
+  await run(db.from('students').update({
+    name: $('pName').value.trim(),
+    full_name: val('pFullName'),
+    branch: val('pBranch'),
+    grade: val('pGrade'),
+    ielts: val('pIelts'),
+    gre: val('pGre'),
+  }).eq('id', selected));
+  $('profileDialog').close();
+  await loadData();
+};
+
 $('loginForm').onsubmit = async (e) => {
   e.preventDefault();
   $('loginError').textContent = '';
@@ -238,5 +325,5 @@ $('logoutBtn').onclick = () => db.auth.signOut();
 db.auth.onAuthStateChange((_event, session) => {
   showApp(!!session);
   if (session) loadData();
-  else { students = []; applications = []; }
+  else { students = []; applications = []; selected = ALL; }
 });

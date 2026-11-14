@@ -3,85 +3,113 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Masters Applications - Summer 2027</title>
+  <title>MastersTrack - Summer 2027</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Masters Applications - Summer 2027</h1>
-    <div class="actions">
-      <button id="logoutBtn" hidden>Log out</button>
-    </div>
-  </header>
-
-  <main id="loginView" hidden>
-    <form id="loginForm">
-      <input type="email" id="email" placeholder="Email" required autocomplete="username">
-      <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
-      <button type="submit">Log in</button>
-    </form>
-    <p id="loginError" class="error"></p>
-  </main>
-
-  <nav id="tabs" hidden></nav>
-
-  <main id="appView" hidden>
-    <section id="summary"></section>
-
-    <section id="studentBar">
-      <div id="profile"></div>
-      <div class="bar-actions">
-        <button type="button" id="editProfileBtn" class="secondary">Edit profile</button>
-        <button type="button" id="addBtn">+ Add application</button>
+  <div id="loginView" class="login" hidden>
+    <form id="loginForm" class="login-card">
+      <div class="brand">
+        <span class="logo">M</span>
+        <div><strong>MastersTrack</strong><small>Summer 2027 intake</small></div>
       </div>
-    </section>
+      <h2>Welcome back</h2>
+      <p class="muted">Sign in to manage your students' applications.</p>
+      <label>Email <input type="email" id="email" required autocomplete="username"></label>
+      <label>Password <input type="password" id="password" required autocomplete="current-password"></label>
+      <button type="submit" class="primary">Log in</button>
+      <p id="loginError" class="error"></p>
+    </form>
+  </div>
 
-    <dialog id="profileDialog">
-      <form id="profileForm">
-        <h2>Edit profile</h2>
-        <label>Tab name <input type="text" id="pName" required></label>
-        <label>Full name <input type="text" id="pFullName"></label>
-        <label>Branch <input type="text" id="pBranch"></label>
-        <label>Grade <input type="text" id="pGrade"></label>
-        <label>IELTS <input type="text" id="pIelts"></label>
-        <label>GRE <input type="text" id="pGre"></label>
-        <div class="dialog-actions">
-          <button type="button" id="cancelProfileBtn" class="secondary">Cancel</button>
-          <button type="submit">Save</button>
+  <div id="shell" hidden>
+    <aside id="sidebar">
+      <div class="brand">
+        <span class="logo">M</span>
+        <div><strong>MastersTrack</strong><small>Summer 2027 intake</small></div>
+      </div>
+      <div class="side-label">Students</div>
+      <nav id="tabs"></nav>
+      <button id="logoutBtn" class="ghost" type="button">Log out</button>
+    </aside>
+
+    <div id="content">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">All applications</h1>
+          <p id="pageSub" class="muted"></p>
         </div>
-      </form>
-    </dialog>
-
-    <dialog id="appDialog">
-      <form id="appForm">
-        <h2 id="dialogTitle">Add application</h2>
-        <label>University <input type="text" id="university" required></label>
-        <label>Program <input type="text" id="program" required></label>
-        <label>Deadline <input type="date" id="deadline"></label>
-        <label>IELTS <input type="text" id="ielts" placeholder="e.g. 6 or 5.5 or MOI"></label>
-        <label>GRE <select id="gre"></select></label>
-        <label>Portal <select id="portal"></select></label>
-        <label>Status <select id="status"></select></label>
-        <label>Link <input type="url" id="link" placeholder="https://..."></label>
-        <label>Notes <input type="text" id="notes"></label>
-        <div class="dialog-actions">
-          <button type="button" id="cancelBtn" class="secondary">Cancel</button>
-          <button type="submit">Save</button>
+        <div class="filters">
+          <input type="search" id="search" placeholder="Search university or program">
+          <select id="filterStatus"></select>
         </div>
-      </form>
-    </dialog>
+      </header>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Student</th><th>University</th><th>Program</th><th>Deadline</th>
-          <th>IELTS</th><th>GRE</th><th>Portal</th><th>Status</th><th>Link</th><th>Notes</th><th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
-    <p id="empty" hidden>No applications yet.</p>
-  </main>
+      <main>
+        <section id="summary" class="cards"></section>
+
+        <section id="studentBar" class="card profile-card">
+          <div id="profile"></div>
+          <button type="button" id="editProfileBtn" class="secondary">Edit profile</button>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>Applications</h2>
+            <button type="button" id="addBtn" class="primary">+ Add application</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th class="col-student">Student</th><th>University</th><th>Deadline</th>
+                  <th>IELTS</th><th>GRE</th><th>Portal</th><th>Status</th>
+                  <th>Link</th><th>Notes</th><th class="col-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+          <p id="empty" class="empty" hidden></p>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <dialog id="appDialog">
+    <form id="appForm">
+      <h2 id="dialogTitle" class="full">Add application</h2>
+      <label class="full">University <input type="text" id="university" required></label>
+      <label class="full">Program <input type="text" id="program" required></label>
+      <label>Deadline <input type="date" id="deadline"></label>
+      <label>IELTS <input type="text" id="ielts" placeholder="e.g. 6 or 5.5 or MOI"></label>
+      <label>GRE <select id="gre"></select></label>
+      <label>Portal <select id="portal"></select></label>
+      <label class="full">Status <select id="status"></select></label>
+      <label class="full">Link <input type="url" id="link" placeholder="https://..."></label>
+      <label class="full">Notes <input type="text" id="notes"></label>
+      <div class="dialog-actions full">
+        <button type="button" id="cancelBtn" class="secondary">Cancel</button>
+        <button type="submit" class="primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="profileDialog">
+    <form id="profileForm">
+      <h2 class="full">Edit profile</h2>
+      <label>Tab name <input type="text" id="pName" required></label>
+      <label>Full name <input type="text" id="pFullName"></label>
+      <label class="full">Branch <input type="text" id="pBranch"></label>
+      <label>Grade <input type="text" id="pGrade"></label>
+      <label>IELTS <input type="text" id="pIelts"></label>
+      <label class="full">GRE <input type="text" id="pGre"></label>
+      <div class="dialog-actions full">
+        <button type="button" id="cancelProfileBtn" class="secondary">Cancel</button>
+        <button type="submit" class="primary">Save</button>
+      </div>
+    </form>
+  </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="config.js"></script>
