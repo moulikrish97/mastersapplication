@@ -3,7 +3,6 @@ const CLOSED = ['Submitted', 'Interview', 'Accepted', 'Rejected'];
 const PORTALS = ['Uniassist', 'Own Portal', 'Own Portal with VPD'];
 const YES_NO = ['No', 'Yes'];
 const PAYMENT = ['-', 'Not paid', 'Paid', 'No fee'];
-const PAY_CLASS = { '-': 'pay-none', 'Not paid': 'pay-unpaid', Paid: 'pay-paid', 'No fee': 'pay-nofee' };
 const ALL = 'all';
 const AVATAR_COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
 const ICON_EDIT = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
@@ -215,9 +214,6 @@ function renderRows(apps, totalForView) {
     const uniCell = el('td');
     uniCell.append(el('div', a.university, { className: 'uni' }), el('div', a.program, { className: 'prog' }));
 
-    const greCell = el('td');
-    greCell.append(el('span', a.gre, { className: `chip ${a.gre === 'Yes' ? 'chip-yes' : 'chip-no'}` }));
-
     const portalCell = el('td');
     if (a.portal) portalCell.append(el('span', a.portal, { className: 'chip' }));
     else portalCell.append(el('span', '-', { className: 'dash' }));
@@ -232,7 +228,7 @@ function renderRows(apps, totalForView) {
     statusCell.append(statusSel);
 
     const payment = a.payment ?? '-';
-    const paySel = el('select', undefined, { className: `status ${PAY_CLASS[payment]}` });
+    const paySel = el('select', undefined, { className: 'plain' });
     PAYMENT.forEach((p) => paySel.append(el('option', p, { value: p, selected: p === payment })));
     paySel.onchange = async () => {
       await run(db.from('applications').update({ payment: paySel.value }).eq('id', a.id));
@@ -255,7 +251,7 @@ function renderRows(apps, totalForView) {
     const actionCell = el('td', undefined, { className: 'row-actions' });
     actionCell.append(edit, del);
 
-    tr.append(dragCell, studentCell, uniCell, deadlineCell(a), textCell(a.ielts), greCell, portalCell, statusCell, payCell, textCell(a.notes), actionCell);
+    tr.append(dragCell, studentCell, uniCell, deadlineCell(a), textCell(a.ielts), textCell(a.gre), portalCell, statusCell, payCell, textCell(a.notes), actionCell);
     body.append(tr);
   });
 
