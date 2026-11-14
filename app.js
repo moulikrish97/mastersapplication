@@ -9,10 +9,34 @@ const ICON_DELETE = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none"
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+const ICON_GRIP = '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
+
+const byOrder = (apps) => [...apps].sort((a, b) => (a.position ?? 1e9) - (b.position ?? 1e9)
+  || (a.deadline ?? '9999').localeCompare(b.deadline ?? '9999'));
+
+async function reorder(fromId, toId) {
+  const list = byOrder(applications.filter((a) => a.student_id === selected));
+  const from = list.findIndex((a) => a.id === fromId);
+  const to = list.findIndex((a) => a.id === toId);
+  const [moved] = list.splice(from, 1);
+  list.splice(to, 0, moved);
+
+  const changed = [];
+  list.forEach((a, i) => {
+    if (a.position !== i) {
+      a.position = i;
+      changed.push(a);
+    }
+  });
+  render();
+  await Promise.all(changed.map((a) => run(db.from('applications').update({ position: a.position }).eq('id', a.id))));
+}
+
 let students = [];
 let applications = [];
 let selected = ALL;
 let editingId = null;
+let dragId = null;
 
 const $ = (id) => document.getElementById(id);
 const slug = (s) => s.toLowerCase().replace(/\s+/g, '-');
@@ -152,10 +176,40 @@ function deadlineCell(a) {
 function renderRows(apps, totalForView) {
   const body = $('rows');
   body.replaceChildren();
+  const canDrag = selected !== ALL && !$('search').value.trim() && !$('filterStatus').value;
   $('rows').closest('table').classList.toggle('single', selected !== ALL);
+  $('rows').closest('table').classList.toggle('sortable', canDrag);
 
-  [...apps].sort((a, b) => (a.deadline ?? '9999').localeCompare(b.deadline ?? '9999')).forEach((a) => {
+  byOrder(apps).forEach((a) => {
     const tr = el('tr');
+
+    const dragCell = el('td', undefined, { className: 'col-drag' });
+    if (canDrag) {
+      const handle = el('span', undefined, { className: 'grip', title: 'Drag to reorder', draggable: true });
+      handle.innerHTML = ICON_GRIP;
+      handle.ondragstart = (e) => {
+        dragId = a.id;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setDragImage(tr, 10, 10);
+        tr.classList.add('dragging');
+      };
+      handle.ondragend = () => {
+        dragId = null;
+        document.querySelectorAll('tr.dragging, tr.drop-target').forEach((r) => r.classList.remove('dragging', 'drop-target'));
+      };
+      dragCell.append(handle);
+      tr.ondragover = (e) => {
+        if (!dragId || dragId === a.id) return;
+        e.preventDefault();
+        tr.classList.add('drop-target');
+      };
+      tr.ondragleave = () => tr.classList.remove('drop-target');
+      tr.ondrop = (e) => {
+        e.preventDefault();
+        tr.classList.remove('drop-target');
+        if (dragId && dragId !== a.id) reorder(dragId, a.id);
+      };
+    }
 
     const studentCell = el('td', undefined, { className: 'col-student' });
     const stud = findStudent(a.student_id);
@@ -203,7 +257,7 @@ function renderRows(apps, totalForView) {
     const actionCell = el('td', undefined, { className: 'row-actions' });
     actionCell.append(edit, del);
 
-    tr.append(studentCell, uniCell, deadlineCell(a), textCell(a.ielts), greCell, portalCell, statusCell, linkCell, textCell(a.notes), actionCell);
+    tr.append(dragCell, studentCell, uniCell, deadlineCell(a), textCell(a.ielts), greCell, portalCell, statusCell, linkCell, textCell(a.notes), actionCell);
     body.append(tr);
   });
 
@@ -276,9 +330,10 @@ $('appForm').onsubmit = async (e) => {
     link: $('link').value.trim() || null,
     notes: $('notes').value.trim() || null,
   };
+  const mine = applications.filter((a) => a.student_id === selected);
   await run(editingId
     ? db.from('applications').update(fields).eq('id', editingId)
-    : db.from('applications').insert({ ...fields, student_id: selected }));
+    : db.from('applications').insert({ ...fields, student_id: selected, position: Math.max(-1, ...mine.map((a) => a.position ?? -1)) + 1 }));
   $('appDialog').close();
   await loadData();
 };

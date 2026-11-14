@@ -25,6 +25,7 @@ create table applications (
     check (status in ('Not started','In progress','Submitted','Interview','Accepted','Rejected')),
   link text,
   notes text,
+  position int,
   created_at timestamptz not null default now()
 );
 
