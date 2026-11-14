@@ -1,4 +1,4 @@
-const STATUSES = ['Not started', 'In progress', 'Submitted', 'Interview', 'Accepted', 'Rejected'];
+const STATUSES = ['Not started', 'In progress', 'VPD applied', 'Submitted', 'Interview', 'Accepted', 'Rejected'];
 const CLOSED = ['Submitted', 'Interview', 'Accepted', 'Rejected'];
 const PORTALS = ['Uniassist', 'Own Portal', 'Own Portal with VPD'];
 const YES_NO = ['No', 'Yes'];

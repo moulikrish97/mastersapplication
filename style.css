@@ -72,6 +72,7 @@ button.stat:hover { transform: translateY(-1px); }
 .stat.next .stat-value { font-size: 1.1rem; margin-top: .25rem; }
 .stat.s-not-started { --accent: #94a3b8; }
 .stat.s-in-progress { --accent: #f59e0b; }
+.stat.s-vpd-applied { --accent: #14b8a6; }
 .stat.s-submitted { --accent: #3b82f6; }
 .stat.s-interview { --accent: #8b5cf6; }
 .stat.s-accepted { --accent: #22c55e; }
@@ -115,6 +116,7 @@ td a:hover { text-decoration: underline; }
 select.status { height: 26px; padding: 0 .5rem; border-radius: 999px; font-size: .76rem; font-weight: 600; cursor: pointer; }
 select.s-not-started { background: #eceff3; color: #4a5568; border-color: #cbd2dc; }
 select.s-in-progress { background: #fff4d6; color: #8a5a00; border-color: #f0d28a; }
+select.s-vpd-applied { background: #d5f5f0; color: #0f766e; border-color: #94dcd2; }
 select.s-submitted { background: #dbeafe; color: #1d4ed8; border-color: #a9c7f5; }
 select.s-interview { background: #ede4fb; color: #6b32c4; border-color: #cdb7f0; }
 select.s-accepted { background: #d9f5e1; color: #17803d; border-color: #a3dcb5; }

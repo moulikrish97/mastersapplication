@@ -22,7 +22,7 @@ create table applications (
   gre text not null default 'No' check (gre in ('Yes','No')),
   portal text check (portal in ('Uniassist','Own Portal','Own Portal with VPD')),
   status text not null default 'Not started'
-    check (status in ('Not started','In progress','Submitted','Interview','Accepted','Rejected')),
+    check (status in ('Not started','In progress','VPD applied','Submitted','Interview','Accepted','Rejected')),
   link text,
   notes text,
   position int,
