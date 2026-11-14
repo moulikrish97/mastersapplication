@@ -1,12 +1,61 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Masters Application</title>
+  <title>Masters Applications - Summer 2027</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Masters Application</h1>
-  <p>Hello, world!</p>
+  <header>
+    <h1>Masters Applications - Summer 2027</h1>
+    <div class="actions">
+      <button id="logoutBtn" hidden>Log out</button>
+    </div>
+  </header>
+
+  <main id="loginView" hidden>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Email" required autocomplete="username">
+      <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
+      <button type="submit">Log in</button>
+    </form>
+    <p id="loginError" class="error"></p>
+  </main>
+
+  <nav id="tabs" hidden></nav>
+
+  <main id="appView" hidden>
+    <section id="summary"></section>
+
+    <section id="studentBar">
+      <label>Student name <input type="text" id="studentName"></label>
+    </section>
+
+    <form id="appForm">
+      <input type="text" id="university" placeholder="University" required>
+      <input type="text" id="program" placeholder="Program" required>
+      <input type="date" id="deadline" required>
+      <select id="status"></select>
+      <input type="url" id="link" placeholder="Portal link (https://...)">
+      <input type="text" id="notes" placeholder="Notes">
+      <button type="submit">Add application</button>
+    </form>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Student</th><th>University</th><th>Program</th><th>Deadline</th>
+          <th>Status</th><th>Link</th><th>Notes</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p id="empty" hidden>No applications yet.</p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
