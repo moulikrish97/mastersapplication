@@ -13,7 +13,11 @@ nav button { background: #dde3ec; color: #222; border-radius: 4px 4px 0 0; }
 nav button.active { background: #2d6cdf; color: #fff; }
 #summary { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .8rem; }
 .chip { background: #fff; border-radius: 12px; padding: .2rem .65rem; border: 1px solid #d0d5dd; font-size: .78rem; }
-#studentBar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .8rem; }
+#studentBar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .8rem; background: #fff; border: 1px solid #e3e6ea; border-radius: 6px; padding: .6rem .8rem; }
+#profile { display: flex; flex-wrap: wrap; gap: .4rem 1.4rem; }
+.pitem { display: flex; flex-direction: column; font-size: .8rem; }
+.plabel { font-size: .68rem; text-transform: uppercase; letter-spacing: .03em; color: #6b7280; }
+.bar-actions { display: flex; gap: .5rem; flex-shrink: 0; }
 [hidden] { display: none !important; }
 input, select { padding: .3rem .45rem; border: 1px solid #c3c9d3; border-radius: 4px; font-size: .85rem; font-family: inherit; }
 table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 2px rgba(0, 0, 0, .06); }

@@ -29,9 +29,28 @@
     <section id="summary"></section>
 
     <section id="studentBar">
-      <label>Student name <input type="text" id="studentName"></label>
-      <button type="button" id="addBtn">+ Add application</button>
+      <div id="profile"></div>
+      <div class="bar-actions">
+        <button type="button" id="editProfileBtn" class="secondary">Edit profile</button>
+        <button type="button" id="addBtn">+ Add application</button>
+      </div>
     </section>
+
+    <dialog id="profileDialog">
+      <form id="profileForm">
+        <h2>Edit profile</h2>
+        <label>Tab name <input type="text" id="pName" required></label>
+        <label>Full name <input type="text" id="pFullName"></label>
+        <label>Branch <input type="text" id="pBranch"></label>
+        <label>Grade <input type="text" id="pGrade"></label>
+        <label>IELTS <input type="text" id="pIelts"></label>
+        <label>GRE <input type="text" id="pGre"></label>
+        <div class="dialog-actions">
+          <button type="button" id="cancelProfileBtn" class="secondary">Cancel</button>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </dialog>
 
     <dialog id="appDialog">
       <form id="appForm">

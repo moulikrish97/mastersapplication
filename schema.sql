@@ -1,7 +1,12 @@
 -- Run once in Supabase Dashboard > SQL Editor.
 create table students (
   id int primary key,
-  name text not null
+  name text not null,
+  full_name text,
+  branch text,
+  grade text,
+  ielts text,
+  gre text
 );
 
 insert into students (id, name)

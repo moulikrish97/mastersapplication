@@ -132,18 +132,51 @@ function renderRows(apps) {
   $('empty').hidden = apps.length > 0;
 }
 
+function renderProfile() {
+  const s = students.find((x) => x.id === selected);
+  const box = $('profile');
+  box.replaceChildren();
+  if (!s) return;
+  [['Full name', s.full_name], ['Branch', s.branch], ['Grade', s.grade], ['IELTS', s.ielts], ['GRE', s.gre]].forEach(([k, v]) => {
+    const item = el('div', undefined, { className: 'pitem' });
+    item.append(el('span', k, { className: 'plabel' }), el('span', v || '-'));
+    box.append(item);
+  });
+}
+
 function render() {
   const apps = selected === ALL ? applications : applications.filter((a) => a.student_id === selected);
   renderTabs();
   renderSummary(apps);
   renderRows(apps);
   $('studentBar').hidden = selected === ALL;
-  if (selected !== ALL) $('studentName').value = studentName(selected);
+  renderProfile();
 }
 
-$('studentName').onchange = async (e) => {
-  const name = e.target.value.trim();
-  if (name) await run(db.from('students').update({ name }).eq('id', selected));
+$('editProfileBtn').onclick = () => {
+  const s = students.find((x) => x.id === selected);
+  $('pName').value = s.name;
+  $('pFullName').value = s.full_name ?? '';
+  $('pBranch').value = s.branch ?? '';
+  $('pGrade').value = s.grade ?? '';
+  $('pIelts').value = s.ielts ?? '';
+  $('pGre').value = s.gre ?? '';
+  $('profileDialog').showModal();
+};
+$('cancelProfileBtn').onclick = () => $('profileDialog').close();
+
+$('profileForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const val = (id) => $(id).value.trim() || null;
+  await run(db.from('students').update({
+    name: $('pName').value.trim(),
+    full_name: val('pFullName'),
+    branch: val('pBranch'),
+    grade: val('pGrade'),
+    ielts: val('pIelts'),
+    gre: val('pGre'),
+  }).eq('id', selected));
+  $('profileDialog').close();
   await loadData();
 };
 
