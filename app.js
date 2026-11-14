@@ -2,7 +2,8 @@ const STATUSES = ['Not started', 'In progress', 'VPD applied', 'Submitted', 'Int
 const CLOSED = ['Submitted', 'Interview', 'Accepted', 'Rejected'];
 const PORTALS = ['Uniassist', 'Own Portal', 'Own Portal with VPD'];
 const YES_NO = ['No', 'Yes'];
-const PAYMENT = ['Not paid', 'Paid'];
+const PAYMENT = ['-', 'Not paid', 'Paid', 'No fee'];
+const PAY_CLASS = { '-': 'pay-none', 'Not paid': 'pay-unpaid', Paid: 'pay-paid', 'No fee': 'pay-nofee' };
 const ALL = 'all';
 const AVATAR_COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
 const ICON_EDIT = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
@@ -230,10 +231,11 @@ function renderRows(apps, totalForView) {
     const statusCell = el('td');
     statusCell.append(statusSel);
 
-    const paySel = el('select', undefined, { className: `status ${a.paid ? 'pay-paid' : 'pay-unpaid'}` });
-    PAYMENT.forEach((p) => paySel.append(el('option', p, { value: p, selected: (p === 'Paid') === !!a.paid })));
+    const payment = a.payment ?? '-';
+    const paySel = el('select', undefined, { className: `status ${PAY_CLASS[payment]}` });
+    PAYMENT.forEach((p) => paySel.append(el('option', p, { value: p, selected: p === payment })));
     paySel.onchange = async () => {
-      await run(db.from('applications').update({ paid: paySel.value === 'Paid' }).eq('id', a.id));
+      await run(db.from('applications').update({ payment: paySel.value }).eq('id', a.id));
       await loadData();
     };
     const payCell = el('td');
@@ -291,7 +293,7 @@ STATUSES.forEach((s) => {
 $('portal').append(el('option', '-', { value: '' }));
 PORTALS.forEach((p) => $('portal').append(el('option', p, { value: p })));
 YES_NO.forEach((v) => $('gre').append(el('option', v, { value: v })));
-PAYMENT.forEach((p) => $('paid').append(el('option', p, { value: p })));
+PAYMENT.forEach((p) => $('payment').append(el('option', p, { value: p })));
 
 $('search').oninput = render;
 $('filterStatus').onchange = render;
@@ -306,7 +308,7 @@ function openDialog(app) {
   $('gre').value = app?.gre ?? 'No';
   $('portal').value = app?.portal ?? '';
   $('status').value = app?.status ?? 'Not started';
-  $('paid').value = app?.paid ? 'Paid' : 'Not paid';
+  $('payment').value = app?.payment ?? '-';
   $('notes').value = app?.notes ?? '';
   $('appDialog').showModal();
 }
@@ -324,7 +326,7 @@ $('appForm').onsubmit = async (e) => {
     gre: $('gre').value,
     portal: $('portal').value || null,
     status: $('status').value,
-    paid: $('paid').value === 'Paid',
+    payment: $('payment').value,
     notes: $('notes').value.trim() || null,
   };
   const mine = applications.filter((a) => a.student_id === selected);

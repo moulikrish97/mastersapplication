@@ -132,6 +132,8 @@ select.s-interview { background: #ede4fb; color: #6b32c4; border-color: #cdb7f0;
 select.s-accepted { background: #d9f5e1; color: #17803d; border-color: #a3dcb5; }
 select.s-rejected { background: #fde1df; color: #b42318; border-color: #f2b1ac; }
 select.pay-paid { background: #d9f5e1; color: #17803d; border-color: #a3dcb5; }
+select.pay-none { background: #f3f4f6; color: #6b7280; border-color: #d9dce3; }
+select.pay-nofee { background: #e0f2fe; color: #0369a1; border-color: #a5d4f0; }
 select.pay-unpaid { background: #fde1df; color: #b42318; border-color: #f2b1ac; }
 
 .row-actions { white-space: nowrap; }
