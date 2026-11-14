@@ -12,7 +12,10 @@ create table applications (
   student_id int not null references students(id) on delete cascade,
   university text not null,
   program text not null,
-  deadline date not null,
+  deadline date,
+  ielts text,
+  gre text,
+  portal text check (portal in ('Uniassist','Own Portal','Own Portal with VPD')),
   status text not null default 'Not started'
     check (status in ('Not started','In progress','Submitted','Interview','Accepted','Rejected')),
   link text,

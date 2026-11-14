@@ -1,5 +1,6 @@
 const STATUSES = ['Not started', 'In progress', 'Submitted', 'Interview', 'Accepted', 'Rejected'];
 const CLOSED = ['Submitted', 'Interview', 'Accepted', 'Rejected'];
+const PORTALS = ['Uniassist', 'Own Portal', 'Own Portal with VPD'];
 const ALL = 'all';
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -76,9 +77,9 @@ function renderRows(apps) {
   body.replaceChildren();
   const today = new Date().toISOString().slice(0, 10);
 
-  [...apps].sort((a, b) => a.deadline.localeCompare(b.deadline)).forEach((a) => {
+  [...apps].sort((a, b) => (a.deadline ?? '9999').localeCompare(b.deadline ?? '9999')).forEach((a) => {
     const tr = el('tr');
-    if (a.deadline < today && !CLOSED.includes(a.status)) tr.classList.add('overdue');
+    if (a.deadline && a.deadline < today && !CLOSED.includes(a.status)) tr.classList.add('overdue');
 
     const statusSel = el('select');
     STATUSES.forEach((s) => statusSel.append(el('option', s, { value: s, selected: s === a.status })));
@@ -107,7 +108,10 @@ function renderRows(apps) {
       el('td', studentName(a.student_id)),
       el('td', a.university),
       el('td', a.program),
-      el('td', a.deadline),
+      el('td', a.deadline ?? ''),
+      el('td', a.ielts ?? ''),
+      el('td', a.gre ?? ''),
+      el('td', a.portal ?? ''),
       statusCell,
       linkCell,
       el('td', a.notes ?? ''),
@@ -136,6 +140,8 @@ $('studentName').onchange = async (e) => {
 };
 
 STATUSES.forEach((s) => $('status').append(el('option', s, { value: s })));
+$('portal').append(el('option', 'Portal', { value: '' }));
+PORTALS.forEach((p) => $('portal').append(el('option', p, { value: p })));
 
 $('appForm').onsubmit = async (e) => {
   e.preventDefault();
@@ -143,7 +149,10 @@ $('appForm').onsubmit = async (e) => {
     student_id: selected,
     university: $('university').value.trim(),
     program: $('program').value.trim(),
-    deadline: $('deadline').value,
+    deadline: $('deadline').value || null,
+    ielts: $('ielts').value.trim() || null,
+    gre: $('gre').value.trim() || null,
+    portal: $('portal').value || null,
     status: $('status').value,
     link: $('link').value.trim() || null,
     notes: $('notes').value.trim() || null,
