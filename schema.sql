@@ -23,7 +23,7 @@ create table applications (
   portal text check (portal in ('Uniassist','Own Portal','Own Portal with VPD')),
   status text not null default 'Not started'
     check (status in ('Not started','In progress','VPD applied','Submitted','Interview','Accepted','Rejected')),
-  link text,
+  paid boolean not null default false,
   notes text,
   position int,
   created_at timestamptz not null default now()

@@ -2,6 +2,7 @@ const STATUSES = ['Not started', 'In progress', 'VPD applied', 'Submitted', 'Int
 const CLOSED = ['Submitted', 'Interview', 'Accepted', 'Rejected'];
 const PORTALS = ['Uniassist', 'Own Portal', 'Own Portal with VPD'];
 const YES_NO = ['No', 'Yes'];
+const PAYMENT = ['Not paid', 'Paid'];
 const ALL = 'all';
 const AVATAR_COLORS = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
 const ICON_EDIT = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
@@ -47,15 +48,6 @@ function el(tag, text, attrs = {}) {
   if (text !== undefined) e.textContent = text;
   Object.assign(e, attrs);
   return e;
-}
-
-function safeUrl(url) {
-  try {
-    const u = new URL(url);
-    return ['http:', 'https:'].includes(u.protocol) ? u.href : null;
-  } catch {
-    return null;
-  }
 }
 
 const fmtDate = (d) => new Date(`${d}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -238,10 +230,14 @@ function renderRows(apps, totalForView) {
     const statusCell = el('td');
     statusCell.append(statusSel);
 
-    const linkCell = el('td');
-    const href = a.link && safeUrl(a.link);
-    if (href) linkCell.append(el('a', 'Open', { href, target: '_blank', rel: 'noopener noreferrer' }));
-    else linkCell.append(el('span', '-', { className: 'dash' }));
+    const paySel = el('select', undefined, { className: `status ${a.paid ? 'pay-paid' : 'pay-unpaid'}` });
+    PAYMENT.forEach((p) => paySel.append(el('option', p, { value: p, selected: (p === 'Paid') === !!a.paid })));
+    paySel.onchange = async () => {
+      await run(db.from('applications').update({ paid: paySel.value === 'Paid' }).eq('id', a.id));
+      await loadData();
+    };
+    const payCell = el('td');
+    payCell.append(paySel);
 
     const edit = el('button', undefined, { type: 'button', className: 'icon', title: 'Edit' });
     edit.innerHTML = ICON_EDIT;
@@ -257,7 +253,7 @@ function renderRows(apps, totalForView) {
     const actionCell = el('td', undefined, { className: 'row-actions' });
     actionCell.append(edit, del);
 
-    tr.append(dragCell, studentCell, uniCell, deadlineCell(a), textCell(a.ielts), greCell, portalCell, statusCell, linkCell, textCell(a.notes), actionCell);
+    tr.append(dragCell, studentCell, uniCell, deadlineCell(a), textCell(a.ielts), greCell, portalCell, statusCell, payCell, textCell(a.notes), actionCell);
     body.append(tr);
   });
 
@@ -295,6 +291,7 @@ STATUSES.forEach((s) => {
 $('portal').append(el('option', '-', { value: '' }));
 PORTALS.forEach((p) => $('portal').append(el('option', p, { value: p })));
 YES_NO.forEach((v) => $('gre').append(el('option', v, { value: v })));
+PAYMENT.forEach((p) => $('paid').append(el('option', p, { value: p })));
 
 $('search').oninput = render;
 $('filterStatus').onchange = render;
@@ -309,7 +306,7 @@ function openDialog(app) {
   $('gre').value = app?.gre ?? 'No';
   $('portal').value = app?.portal ?? '';
   $('status').value = app?.status ?? 'Not started';
-  $('link').value = app?.link ?? '';
+  $('paid').value = app?.paid ? 'Paid' : 'Not paid';
   $('notes').value = app?.notes ?? '';
   $('appDialog').showModal();
 }
@@ -327,7 +324,7 @@ $('appForm').onsubmit = async (e) => {
     gre: $('gre').value,
     portal: $('portal').value || null,
     status: $('status').value,
-    link: $('link').value.trim() || null,
+    paid: $('paid').value === 'Paid',
     notes: $('notes').value.trim() || null,
   };
   const mine = applications.filter((a) => a.student_id === selected);
