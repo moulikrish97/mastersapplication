@@ -24,6 +24,13 @@ table { width: 100%; border-collapse: collapse; background: #fff; border-radius:
 th, td { text-align: left; padding: .4rem .55rem; border-bottom: 1px solid #eceff3; font-size: .8rem; vertical-align: middle; }
 th { background: #eef1f6; font-size: .72rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5568; }
 td select { font-size: .78rem; padding: .15rem .3rem; }
+select.status { font-weight: 600; border-radius: 10px; padding: .15rem .45rem; }
+select.s-not-started { background: #eceff3; color: #4a5568; border-color: #cbd2dc; }
+select.s-in-progress { background: #fff4d6; color: #8a5a00; border-color: #f0d28a; }
+select.s-submitted { background: #dbeafe; color: #1d4ed8; border-color: #a9c7f5; }
+select.s-interview { background: #ede4fb; color: #6b32c4; border-color: #cdb7f0; }
+select.s-accepted { background: #d9f5e1; color: #17803d; border-color: #a3dcb5; }
+select.s-rejected { background: #fde1df; color: #b42318; border-color: #f2b1ac; }
 td:nth-child(4) { white-space: nowrap; }
 tr:hover td { background: #fafbfd; }
 tr.overdue td:nth-child(4) { color: #c0392b; font-weight: 600; }

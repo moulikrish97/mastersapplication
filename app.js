@@ -85,7 +85,7 @@ function renderRows(apps) {
     const tr = el('tr');
     if (a.deadline && a.deadline < today && !CLOSED.includes(a.status)) tr.classList.add('overdue');
 
-    const statusSel = el('select');
+    const statusSel = el('select', undefined, { className: `status s-${a.status.toLowerCase().replace(/\s+/g, '-')}` });
     STATUSES.forEach((s) => statusSel.append(el('option', s, { value: s, selected: s === a.status })));
     statusSel.onchange = async () => {
       await run(db.from('applications').update({ status: statusSel.value }).eq('id', a.id));
