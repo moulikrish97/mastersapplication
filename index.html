@@ -30,26 +30,33 @@
 
     <section id="studentBar">
       <label>Student name <input type="text" id="studentName"></label>
+      <button type="button" id="addBtn">+ Add application</button>
     </section>
 
-    <form id="appForm">
-      <input type="text" id="university" placeholder="University" required>
-      <input type="text" id="program" placeholder="Program" required>
-      <input type="date" id="deadline" title="Closing date">
-      <input type="text" id="ielts" placeholder="IELTS (e.g. 6)">
-      <input type="text" id="gre" placeholder="GRE">
-      <select id="portal"></select>
-      <select id="status"></select>
-      <input type="url" id="link" placeholder="Portal link (https://...)">
-      <input type="text" id="notes" placeholder="Notes">
-      <button type="submit">Add application</button>
-    </form>
+    <dialog id="appDialog">
+      <form id="appForm">
+        <h2 id="dialogTitle">Add application</h2>
+        <label>University <input type="text" id="university" required></label>
+        <label>Program <input type="text" id="program" required></label>
+        <label>Deadline <input type="date" id="deadline"></label>
+        <label>IELTS <input type="text" id="ielts" placeholder="e.g. 6 or 5.5 or MOI"></label>
+        <label>GRE <select id="gre"></select></label>
+        <label>Portal <select id="portal"></select></label>
+        <label>Status <select id="status"></select></label>
+        <label>Link <input type="url" id="link" placeholder="https://..."></label>
+        <label>Notes <input type="text" id="notes"></label>
+        <div class="dialog-actions">
+          <button type="button" id="cancelBtn" class="secondary">Cancel</button>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </dialog>
 
     <table>
       <thead>
         <tr>
           <th>Student</th><th>University</th><th>Program</th><th>Deadline</th>
-          <th>IELTS</th><th>GRE</th><th>Portal</th><th>Status</th><th>Link</th><th>Notes</th><th></th>
+          <th>IELTS</th><th>GRE</th><th>Portal</th><th>Status</th><th>Link</th><th>Notes</th><th>Actions</th>
         </tr>
       </thead>
       <tbody id="rows"></tbody>

@@ -1,21 +1,38 @@
 * { box-sizing: border-box; }
-body { font-family: system-ui, sans-serif; margin: 0; background: #f4f5f7; color: #222; }
-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background: #1f3a5f; color: #fff; }
-h1 { margin: 0; font-size: 1.3rem; }
-main { padding: 1rem 1.5rem; }
-button, .button { background: #2d6cdf; color: #fff; border: 0; padding: .5rem .9rem; border-radius: 4px; cursor: pointer; font-size: .9rem; display: inline-block; }
-button.danger { background: #c0392b; }
+body { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 13px; margin: 0; background: #f4f5f7; color: #222; }
+header { display: flex; justify-content: space-between; align-items: center; padding: .7rem 1.2rem; background: #1f3a5f; color: #fff; }
+h1 { margin: 0; font-size: 1.05rem; font-weight: 600; }
+h2 { margin: 0 0 .5rem; font-size: 1rem; }
+main { padding: .8rem 1.2rem; }
+button { background: #2d6cdf; color: #fff; border: 0; padding: .35rem .75rem; border-radius: 4px; cursor: pointer; font-size: .85rem; }
+button:hover { filter: brightness(1.1); }
+button.secondary { background: #e3e6ea; color: #222; }
 .actions { display: flex; gap: .5rem; }
-nav { display: flex; flex-wrap: wrap; gap: .25rem; padding: .75rem 1.5rem 0; }
+nav { display: flex; flex-wrap: wrap; gap: .2rem; padding: .6rem 1.2rem 0; }
 nav button { background: #dde3ec; color: #222; border-radius: 4px 4px 0 0; }
 nav button.active { background: #2d6cdf; color: #fff; }
-#summary { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
-.chip { background: #fff; border-radius: 4px; padding: .4rem .8rem; border: 1px solid #d0d5dd; font-size: .85rem; }
-#studentBar { margin-bottom: 1rem; }
-form { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
-input, select { padding: .45rem; border: 1px solid #c3c9d3; border-radius: 4px; font-size: .9rem; }
-table { width: 100%; border-collapse: collapse; background: #fff; }
-th, td { text-align: left; padding: .5rem; border-bottom: 1px solid #e3e6ea; font-size: .9rem; }
-th { background: #eef1f6; }
+#summary { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .8rem; }
+.chip { background: #fff; border-radius: 12px; padding: .2rem .65rem; border: 1px solid #d0d5dd; font-size: .78rem; }
+#studentBar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .8rem; }
+[hidden] { display: none !important; }
+input, select { padding: .3rem .45rem; border: 1px solid #c3c9d3; border-radius: 4px; font-size: .85rem; font-family: inherit; }
+table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 2px rgba(0, 0, 0, .06); }
+th, td { text-align: left; padding: .4rem .55rem; border-bottom: 1px solid #eceff3; font-size: .8rem; vertical-align: middle; }
+th { background: #eef1f6; font-size: .72rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5568; }
+td select { font-size: .78rem; padding: .15rem .3rem; }
+td:nth-child(4) { white-space: nowrap; }
+tr:hover td { background: #fafbfd; }
 tr.overdue td:nth-child(4) { color: #c0392b; font-weight: 600; }
+.row-actions { white-space: nowrap; }
+button.icon { background: transparent; color: #4a5568; padding: .25rem; border-radius: 4px; line-height: 0; }
+button.icon:hover { background: #e3e6ea; filter: none; }
+button.icon.danger { color: #c0392b; }
+button.icon.danger:hover { background: #fbe3e0; }
+dialog { border: 0; border-radius: 8px; padding: 1.2rem; width: min(440px, 92vw); box-shadow: 0 10px 30px rgba(0, 0, 0, .25); }
+dialog::backdrop { background: rgba(0, 0, 0, .35); }
+dialog form { display: flex; flex-direction: column; gap: .55rem; }
+dialog label { display: flex; flex-direction: column; gap: .2rem; font-size: .75rem; color: #4a5568; }
+dialog input, dialog select { width: 100%; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .4rem; }
+#loginForm { display: flex; flex-wrap: wrap; gap: .5rem; }
 .error { color: #c0392b; }

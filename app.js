@@ -1,6 +1,9 @@
 const STATUSES = ['Not started', 'In progress', 'Submitted', 'Interview', 'Accepted', 'Rejected'];
 const CLOSED = ['Submitted', 'Interview', 'Accepted', 'Rejected'];
 const PORTALS = ['Uniassist', 'Own Portal', 'Own Portal with VPD'];
+const YES_NO = ['No', 'Yes'];
+const ICON_EDIT = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+const ICON_DELETE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
 const ALL = 'all';
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -8,6 +11,7 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let students = [];
 let applications = [];
 let selected = ALL;
+let editingId = null;
 
 const $ = (id) => document.getElementById(id);
 const studentName = (id) => students.find((s) => s.id === id)?.name ?? '';
@@ -92,7 +96,12 @@ function renderRows(apps) {
     const href = a.link && safeUrl(a.link);
     if (href) linkCell.append(el('a', 'Open', { href, target: '_blank', rel: 'noopener noreferrer' }));
 
-    const del = el('button', 'Delete', { type: 'button', className: 'danger' });
+    const edit = el('button', undefined, { type: 'button', className: 'icon', title: 'Edit' });
+    edit.innerHTML = ICON_EDIT;
+    edit.onclick = () => openDialog(a);
+
+    const del = el('button', undefined, { type: 'button', className: 'icon danger', title: 'Delete' });
+    del.innerHTML = ICON_DELETE;
     del.onclick = async () => {
       if (!confirm('Delete this application?')) return;
       await run(db.from('applications').delete().eq('id', a.id));
@@ -101,8 +110,8 @@ function renderRows(apps) {
 
     const statusCell = el('td');
     statusCell.append(statusSel);
-    const delCell = el('td');
-    delCell.append(del);
+    const delCell = el('td', undefined, { className: 'row-actions' });
+    delCell.append(edit, del);
 
     tr.append(
       el('td', studentName(a.student_id)),
@@ -129,7 +138,6 @@ function render() {
   renderSummary(apps);
   renderRows(apps);
   $('studentBar').hidden = selected === ALL;
-  $('appForm').hidden = selected === ALL;
   if (selected !== ALL) $('studentName').value = studentName(selected);
 }
 
@@ -140,24 +148,45 @@ $('studentName').onchange = async (e) => {
 };
 
 STATUSES.forEach((s) => $('status').append(el('option', s, { value: s })));
-$('portal').append(el('option', 'Portal', { value: '' }));
+$('portal').append(el('option', '-', { value: '' }));
 PORTALS.forEach((p) => $('portal').append(el('option', p, { value: p })));
+YES_NO.forEach((v) => $('gre').append(el('option', v, { value: v })));
+
+function openDialog(app) {
+  editingId = app?.id ?? null;
+  $('dialogTitle').textContent = app ? 'Edit application' : 'Add application';
+  $('university').value = app?.university ?? '';
+  $('program').value = app?.program ?? '';
+  $('deadline').value = app?.deadline ?? '';
+  $('ielts').value = app?.ielts ?? '';
+  $('gre').value = app?.gre ?? 'No';
+  $('portal').value = app?.portal ?? '';
+  $('status').value = app?.status ?? 'Not started';
+  $('link').value = app?.link ?? '';
+  $('notes').value = app?.notes ?? '';
+  $('appDialog').showModal();
+}
+
+$('addBtn').onclick = () => openDialog(null);
+$('cancelBtn').onclick = () => $('appDialog').close();
 
 $('appForm').onsubmit = async (e) => {
   e.preventDefault();
-  await run(db.from('applications').insert({
-    student_id: selected,
+  const fields = {
     university: $('university').value.trim(),
     program: $('program').value.trim(),
     deadline: $('deadline').value || null,
     ielts: $('ielts').value.trim() || null,
-    gre: $('gre').value.trim() || null,
+    gre: $('gre').value,
     portal: $('portal').value || null,
     status: $('status').value,
     link: $('link').value.trim() || null,
     notes: $('notes').value.trim() || null,
-  }));
-  e.target.reset();
+  };
+  await run(editingId
+    ? db.from('applications').update(fields).eq('id', editingId)
+    : db.from('applications').insert({ ...fields, student_id: selected }));
+  $('appDialog').close();
   await loadData();
 };
 
