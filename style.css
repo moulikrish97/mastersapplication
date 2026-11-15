@@ -71,22 +71,14 @@ button { font: inherit; cursor: pointer; border: 0; }
 
 main { display: grid; gap: 1rem; padding: 1.2rem 1.5rem 2rem; align-content: start; }
 
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(125px, 1fr)); gap: .75rem; }
-.stat { --accent: var(--primary); display: flex; flex-direction: column; gap: .15rem; padding: .75rem .9rem; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: var(--radius); box-shadow: var(--shadow); text-align: left; color: var(--text); }
-button.stat:hover { transform: translateY(-1px); }
-.stat.on { box-shadow: 0 0 0 2px var(--accent); }
-.stat-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
-.stat-value { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
-.stat-sub { font-size: .72rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.stat.next { grid-column: span 2; cursor: default; --accent: #0ea5e9; }
-.stat.next .stat-value { font-size: 1.1rem; margin-top: .25rem; }
-.stat.s-not-started { --accent: #94a3b8; }
-.stat.s-in-progress { --accent: #f59e0b; }
-.stat.s-vpd-applied { --accent: #14b8a6; }
-.stat.s-submitted { --accent: #3b82f6; }
-.stat.s-interview { --accent: #8b5cf6; }
-.stat.s-accepted { --accent: #22c55e; }
-.stat.s-rejected { --accent: #ef4444; }
+.dl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: .75rem; padding: 1rem 1.1rem 1.1rem; }
+.dl-tile { --accent: #0ea5e9; display: flex; flex-direction: column; gap: .1rem; padding: .7rem .85rem; background: #f9fafb; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px; }
+.dl-tile.soon { --accent: #f59e0b; }
+.dl-tile.urgent { --accent: #ef4444; }
+.dl-days { font-size: 1.35rem; font-weight: 700; line-height: 1.2; color: var(--accent); }
+.dl-uni { font-weight: 600; }
+.dl-prog { color: var(--muted); font-size: .76rem; }
+.dl-date { margin-top: .3rem; color: var(--muted); font-size: .72rem; }
 
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
 .card-head { display: flex; align-items: center; justify-content: space-between; padding: .85rem 1.1rem; border-bottom: 1px solid var(--border); }

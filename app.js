@@ -102,32 +102,35 @@ function renderTabs() {
 function renderSummary(apps) {
   const box = $('summary');
   box.replaceChildren();
-  const active = $('filterStatus').value;
-
-  const card = (label, value, status) => {
-    const c = el('button', undefined, { type: 'button', className: `stat${status ? ` s-${slug(status)}` : ''}` });
-    if ((status ?? '') === active) c.classList.add('on');
-    c.append(el('span', label, { className: 'stat-label' }), el('strong', String(value), { className: 'stat-value' }));
-    c.onclick = () => {
-      $('filterStatus').value = status ?? '';
-      render();
-    };
-    box.append(c);
-  };
-
-  card('Total', apps.length, null);
-  STATUSES.forEach((st) => card(st, apps.filter((a) => a.status === st).length, st));
 
   const upcoming = apps
     .filter((a) => a.deadline && !CLOSED.includes(a.status) && daysUntil(a.deadline) >= 0)
-    .sort((a, b) => a.deadline.localeCompare(b.deadline))[0];
-  const next = el('div', undefined, { className: 'stat next' });
-  next.append(
-    el('span', 'Next deadline', { className: 'stat-label' }),
-    el('strong', upcoming ? fmtDate(upcoming.deadline) : 'None upcoming', { className: 'stat-value' }),
-  );
-  if (upcoming) next.append(el('span', `${upcoming.university} (${daysUntil(upcoming.deadline)} days)`, { className: 'stat-sub' }));
-  box.append(next);
+    .sort((a, b) => a.deadline.localeCompare(b.deadline))
+    .slice(0, 6);
+
+  const head = el('div', undefined, { className: 'card-head' });
+  head.append(el('h2', 'Upcoming deadlines'));
+  box.append(head);
+
+  if (!upcoming.length) {
+    box.append(el('p', 'No upcoming deadlines.', { className: 'empty' }));
+    return;
+  }
+
+  const grid = el('div', undefined, { className: 'dl-grid' });
+  upcoming.forEach((a) => {
+    const d = daysUntil(a.deadline);
+    const tile = el('div', undefined, { className: `dl-tile${d <= 7 ? ' urgent' : d <= 14 ? ' soon' : ''}` });
+    const who = selected === ALL ? findStudent(a.student_id)?.name : null;
+    tile.append(
+      el('strong', d === 0 ? 'Today' : `${d} day${d === 1 ? '' : 's'}`, { className: 'dl-days' }),
+      el('div', a.university, { className: 'dl-uni' }),
+      el('div', a.program, { className: 'dl-prog' }),
+      el('div', [fmtDate(a.deadline), who].filter(Boolean).join(' \u00b7 '), { className: 'dl-date' }),
+    );
+    grid.append(tile);
+  });
+  box.append(grid);
 }
 
 function renderProfile() {
