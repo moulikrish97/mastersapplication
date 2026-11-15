@@ -59,6 +59,8 @@ button { font: inherit; cursor: pointer; border: 0; }
 .side-item .count { padding: 0 .45rem; border-radius: 10px; background: rgba(255, 255, 255, .12); font-size: .7rem; }
 .ghost { background: transparent; color: #94a3b8; border: 1px solid #1e293b; padding: .5rem; border-radius: 8px; font-size: .8rem; }
 .ghost:hover { color: #fff; background: rgba(255, 255, 255, .06); }
+.add-student { background: transparent; color: #cbd5e1; border: 1px dashed #475569; padding: .5rem; border-radius: 8px; font-size: .82rem; }
+.add-student:hover { color: #fff; border-color: #94a3b8; background: rgba(255, 255, 255, .06); }
 
 .avatar { display: inline-grid; place-items: center; flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; color: #fff; font-size: .66rem; font-weight: 700; }
 .avatar.lg { width: 46px; height: 46px; font-size: 1rem; }
@@ -139,6 +141,8 @@ dialog label { display: flex; flex-direction: column; gap: .25rem; font-size: .7
 dialog input, dialog select { width: 100%; font-weight: 400; }
 dialog .full { grid-column: 1 / -1; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .3rem; }
+.danger-text { margin-right: auto; background: transparent; color: #dc2626; padding: .45rem .6rem; border-radius: 8px; font-size: .82rem; font-weight: 600; }
+.danger-text:hover { background: #fee2e2; }
 
 @media (max-width: 860px) {
   #shell { grid-template-columns: 1fr; }

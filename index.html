@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MastersTrack - Summer 2027</title>
-  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
   <div id="loginView" class="login" hidden>
@@ -33,6 +33,7 @@
       </div>
       <div class="side-label">Students</div>
       <nav id="tabs"></nav>
+      <button id="addStudentBtn" class="add-student" type="button">+ Add student</button>
       <button id="logoutBtn" class="ghost" type="button">Log out</button>
     </aside>
 
@@ -105,7 +106,7 @@
 
   <dialog id="profileDialog">
     <form id="profileForm">
-      <h2 class="full">Edit profile</h2>
+      <h2 id="profileTitle" class="full">Edit profile</h2>
       <label>Tab name <input type="text" id="pName" required></label>
       <label>Full name <input type="text" id="pFullName"></label>
       <label class="full">Branch <input type="text" id="pBranch"></label>
@@ -113,6 +114,7 @@
       <label>IELTS <input type="text" id="pIelts"></label>
       <label class="full">GRE <input type="text" id="pGre"></label>
       <div class="dialog-actions full">
+        <button type="button" id="deleteStudentBtn" class="danger-text">Delete student</button>
         <button type="button" id="cancelProfileBtn" class="secondary">Cancel</button>
         <button type="submit" class="primary">Save</button>
       </div>
@@ -120,7 +122,7 @@
   </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-  <script src="config.js?v=11"></script>
-  <script src="app.js?v=11"></script>
+  <script src="config.js?v=12"></script>
+  <script src="app.js?v=12"></script>
 </body>
 </html>

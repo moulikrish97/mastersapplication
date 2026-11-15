@@ -336,29 +336,53 @@ $('appForm').onsubmit = async (e) => {
   await loadData();
 };
 
-$('editProfileBtn').onclick = () => {
-  const s = findStudent(selected);
-  $('pName').value = s.name;
-  $('pFullName').value = s.full_name ?? '';
-  $('pBranch').value = s.branch ?? '';
-  $('pGrade').value = s.grade ?? '';
-  $('pIelts').value = s.ielts ?? '';
-  $('pGre').value = s.gre ?? '';
+let profileIsNew = false;
+
+function openProfileDialog(student) {
+  profileIsNew = !student;
+  $('profileTitle').textContent = student ? 'Edit profile' : 'Add student';
+  $('deleteStudentBtn').hidden = !student;
+  $('pName').value = student?.name ?? '';
+  $('pFullName').value = student?.full_name ?? '';
+  $('pBranch').value = student?.branch ?? '';
+  $('pGrade').value = student?.grade ?? '';
+  $('pIelts').value = student?.ielts ?? '';
+  $('pGre').value = student?.gre ?? '';
   $('profileDialog').showModal();
-};
+}
+
+$('editProfileBtn').onclick = () => openProfileDialog(findStudent(selected));
+$('addStudentBtn').onclick = () => openProfileDialog(null);
 $('cancelProfileBtn').onclick = () => $('profileDialog').close();
+
+$('deleteStudentBtn').onclick = async () => {
+  const s = findStudent(selected);
+  const n = applications.filter((a) => a.student_id === s.id).length;
+  if (!confirm(`Delete ${s.name} and ${n} application${n === 1 ? '' : 's'}? This cannot be undone.`)) return;
+  await run(db.from('students').delete().eq('id', s.id));
+  $('profileDialog').close();
+  selected = ALL;
+  await loadData();
+};
 
 $('profileForm').onsubmit = async (e) => {
   e.preventDefault();
   const val = (id) => $(id).value.trim() || null;
-  await run(db.from('students').update({
+  const fields = {
     name: $('pName').value.trim(),
     full_name: val('pFullName'),
     branch: val('pBranch'),
     grade: val('pGrade'),
     ielts: val('pIelts'),
     gre: val('pGre'),
-  }).eq('id', selected));
+  };
+  if (profileIsNew) {
+    const id = Math.max(0, ...students.map((s) => s.id)) + 1;
+    await run(db.from('students').insert({ id, ...fields }));
+    selected = id;
+  } else {
+    await run(db.from('students').update(fields).eq('id', selected));
+  }
   $('profileDialog').close();
   await loadData();
 };

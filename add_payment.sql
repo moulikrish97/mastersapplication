@@ -9,3 +9,4 @@ alter table applications add constraint applications_payment_check
   check (payment in ('-','Not paid','Paid','No fee'));
 
 alter table applications drop column if exists paid;
+ 
